@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calculator Tests</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        h1 {
+            color: #667eea;
+        }
+        .test-section {
+            background: white;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .test-result {
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 4px;
+        }
+        .pass {
+            background: #d4edda;
+            color: #155724;
+        }
+        .fail {
+            background: #f8d7da;
+            color: #721c24;
+        }
+    </style>
+</head>
+<body>
+    <h1>Revenue & ROI Calculator - Test Suite</h1>
+    <div id="test-results"></div>
+
+    <script>
+        // Import calculator functions (inline for testing)
+        function calculateMortgagePayment(loanAmount, annualRate, loanTermYears, downPayment) {
+            const principal = loanAmount - downPayment;
+            const monthlyRate = annualRate / 100 / 12;
+            const numberOfPayments = loanTermYears * 12;
+            
+            let monthlyPayment;
+            if (monthlyRate === 0) {
+                monthlyPayment = principal / numberOfPayments;
+            } else {
+                monthlyPayment = principal * (monthlyRate * Math.pow(1 + monthlyRate, numberOfPayments)) / 
+                                (Math.pow(1 + monthlyRate, numberOfPayments) - 1);
+            }
+            
+            const totalPayment = monthlyPayment * numberOfPayments;
+            const totalInterest = totalPayment - principal;
+            
+            return {
+                monthlyPayment,
+                totalPayment,
+                totalInterest,
+                principal
+            };
+        }
+
+        function calculateRentalROI(nightlyRate, occupancyRate, monthlyExpenses, initialInvestment) {
+            const daysInMonth = 30;
+            const occupiedDays = (daysInMonth * occupancyRate) / 100;
+            const monthlyRevenue = nightlyRate * occupiedDays;
+            const annualRevenue = monthlyRevenue * 12;
+            const netMonthlyIncome = monthlyRevenue - monthlyExpenses;
+            const netAnnualIncome = netMonthlyIncome * 12;
+            const annualROI = (netAnnualIncome / initialInvestment) * 100;
+            const paybackPeriod = netAnnualIncome > 0 ? initialInvestment / netAnnualIncome : 0;
+            
+            return {
+                monthlyRevenue,
+                annualRevenue,
+                netMonthlyIncome,
+                netAnnualIncome,
+                annualROI,
+                paybackPeriod
+            };
+        }
+
+        // Test framework
+        class TestRunner {
+            constructor() {
+                this.tests = [];
+                this.results = [];
+            }
+
+            test(name, fn) {
+                this.tests.push({ name, fn });
+            }
+
+            assertApprox(actual, expected, tolerance = 0.01, message = '') {
+                const diff = Math.abs(actual - expected);
+                if (diff <= tolerance) {
+                    return { pass: true, message: `✓ ${message || 'Values match'}` };
+                } else {
+                    return { 
+                        pass: false, 
+                        message: `✗ ${message || 'Values do not match'}: expected ${expected}, got ${actual} (diff: ${diff})` 
+                    };
+                }
+            }
+
+            run() {
+                const resultsDiv = document.getElementById('test-results');
+                
+                this.tests.forEach(({ name, fn }) => {
+                    const section = document.createElement('div');
+                    section.className = 'test-section';
+                    
+                    const title = document.createElement('h2');
+                    title.textContent = name;
+                    section.appendChild(title);
+                    
+                    try {
+                        const assertions = fn();
+                        assertions.forEach(assertion => {
+                            const result = document.createElement('div');
+                            result.className = `test-result ${assertion.pass ? 'pass' : 'fail'}`;
+                            result.textContent = assertion.message;
+                            section.appendChild(result);
+                        });
+                    } catch (error) {
+                        const result = document.createElement('div');
+                        result.className = 'test-result fail';
+                        result.textContent = `✗ Test failed with error: ${error.message}`;
+                        section.appendChild(result);
+                    }
+                    
+                    resultsDiv.appendChild(section);
+                });
+            }
+        }
+
+        // Create test runner
+        const runner = new TestRunner();
+
+        // Mortgage Calculator Tests
+        runner.test('Mortgage Calculator - Standard Loan', function() {
+            const result = calculateMortgagePayment(300000, 4.5, 30, 60000);
+            return [
+                runner.assertApprox(result.principal, 240000, 0.01, 'Principal calculation'),
+                runner.assertApprox(result.monthlyPayment, 1216.04, 1, 'Monthly payment calculation'),
+                runner.assertApprox(result.totalPayment, 437776.11, 10, 'Total payment calculation'),
+                runner.assertApprox(result.totalInterest, 197776.11, 10, 'Total interest calculation')
+            ];
+        });
+
+        runner.test('Mortgage Calculator - Zero Interest Rate', function() {
+            const result = calculateMortgagePayment(120000, 0, 10, 20000);
+            return [
+                runner.assertApprox(result.principal, 100000, 0.01, 'Principal calculation'),
+                runner.assertApprox(result.monthlyPayment, 833.33, 1, 'Monthly payment with 0% interest'),
+                runner.assertApprox(result.totalInterest, 0, 0.01, 'Total interest should be 0')
+            ];
+        });
+
+        runner.test('Mortgage Calculator - High Interest Rate', function() {
+            const result = calculateMortgagePayment(500000, 8.5, 15, 100000);
+            return [
+                runner.assertApprox(result.principal, 400000, 0.01, 'Principal calculation'),
+                runner.assertApprox(result.monthlyPayment, 3936.57, 5, 'Monthly payment with high interest'),
+                { pass: result.totalInterest > result.principal, message: '✓ Interest exceeds principal (as expected with high rate)' }
+            ];
+        });
+
+        // Rental ROI Calculator Tests
+        runner.test('Rental ROI Calculator - Standard Scenario', function() {
+            const result = calculateRentalROI(200, 70, 2000, 100000);
+            return [
+                runner.assertApprox(result.monthlyRevenue, 4200, 0.01, 'Monthly revenue calculation'),
+                runner.assertApprox(result.annualRevenue, 50400, 0.01, 'Annual revenue calculation'),
+                runner.assertApprox(result.netMonthlyIncome, 2200, 0.01, 'Net monthly income calculation'),
+                runner.assertApprox(result.netAnnualIncome, 26400, 0.01, 'Net annual income calculation'),
+                runner.assertApprox(result.annualROI, 26.40, 0.1, 'Annual ROI percentage'),
+                runner.assertApprox(result.paybackPeriod, 3.79, 0.1, 'Payback period in years')
+            ];
+        });
+
+        runner.test('Rental ROI Calculator - High Occupancy', function() {
+            const result = calculateRentalROI(150, 90, 1500, 80000);
+            return [
+                runner.assertApprox(result.monthlyRevenue, 4050, 1, 'Monthly revenue with 90% occupancy'),
+                runner.assertApprox(result.netMonthlyIncome, 2550, 1, 'Net monthly income'),
+                runner.assertApprox(result.annualROI, 38.25, 0.5, 'High ROI with good occupancy'),
+                { pass: result.paybackPeriod < 3, message: '✓ Payback period under 3 years (good investment)' }
+            ];
+        });
+
+        runner.test('Rental ROI Calculator - Low Profitability', function() {
+            const result = calculateRentalROI(100, 50, 3000, 100000);
+            return [
+                runner.assertApprox(result.monthlyRevenue, 1500, 1, 'Monthly revenue with low rate and occupancy'),
+                runner.assertApprox(result.netMonthlyIncome, -1500, 1, 'Negative net income'),
+                runner.assertApprox(result.netAnnualIncome, -18000, 1, 'Negative annual income'),
+                { pass: result.annualROI < 0, message: '✓ Negative ROI detected (unprofitable scenario)' }
+            ];
+        });
+
+        runner.test('Rental ROI Calculator - 100% Occupancy', function() {
+            const result = calculateRentalROI(250, 100, 2500, 120000);
+            return [
+                runner.assertApprox(result.monthlyRevenue, 7500, 1, 'Maximum monthly revenue'),
+                runner.assertApprox(result.netMonthlyIncome, 5000, 1, 'Net monthly income at full occupancy'),
+                runner.assertApprox(result.annualROI, 50, 1, 'Strong ROI at full occupancy'),
+                runner.assertApprox(result.paybackPeriod, 2, 0.1, 'Fast payback period')
+            ];
+        });
+
+        // Run all tests
+        window.onload = function() {
+            runner.run();
+        };
+    </script>
+</body>
+</html>
