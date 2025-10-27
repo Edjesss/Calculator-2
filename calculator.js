@@ -98,6 +98,12 @@ function formatCurrency(value) {
     return '$' + value.toFixed(2).replace(/\d(?=(\d{3})+\.)/g, '$&,');
 }
 
+function escapeHtml(text) {
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+}
+
 function animateResults(elementId) {
     const element = document.getElementById(elementId);
     element.style.opacity = '0';
@@ -127,30 +133,30 @@ function generatePDF() {
         day: 'numeric'
     });
 
-    // Get all input and result values
+    // Get all input and result values and escape them
     const mortgageData = {
-        loanAmount: document.getElementById('loan-amount').value || '0',
-        interestRate: document.getElementById('interest-rate').value || '0',
-        loanTerm: document.getElementById('loan-term').value || '0',
-        downPayment: document.getElementById('down-payment').value || '0',
-        monthlyPayment: document.getElementById('monthly-payment').textContent,
-        totalPayment: document.getElementById('total-payment').textContent,
-        totalInterest: document.getElementById('total-interest').textContent,
-        principalAmount: document.getElementById('principal-amount').textContent
+        loanAmount: escapeHtml(document.getElementById('loan-amount').value || '0'),
+        interestRate: escapeHtml(document.getElementById('interest-rate').value || '0'),
+        loanTerm: escapeHtml(document.getElementById('loan-term').value || '0'),
+        downPayment: escapeHtml(document.getElementById('down-payment').value || '0'),
+        monthlyPayment: escapeHtml(document.getElementById('monthly-payment').textContent),
+        totalPayment: escapeHtml(document.getElementById('total-payment').textContent),
+        totalInterest: escapeHtml(document.getElementById('total-interest').textContent),
+        principalAmount: escapeHtml(document.getElementById('principal-amount').textContent)
     };
 
     const rentalData = {
-        propertyPrice: document.getElementById('property-price').value || '0',
-        nightlyRate: document.getElementById('nightly-rate').value || '0',
-        occupancyRate: document.getElementById('occupancy-rate').value || '0',
-        monthlyExpenses: document.getElementById('monthly-expenses').value || '0',
-        initialInvestment: document.getElementById('initial-investment').value || '0',
-        monthlyRevenue: document.getElementById('monthly-revenue').textContent,
-        annualRevenue: document.getElementById('annual-revenue').textContent,
-        netMonthly: document.getElementById('net-monthly').textContent,
-        netAnnual: document.getElementById('net-annual').textContent,
-        annualROI: document.getElementById('annual-roi').textContent,
-        paybackPeriod: document.getElementById('payback-period').textContent
+        propertyPrice: escapeHtml(document.getElementById('property-price').value || '0'),
+        nightlyRate: escapeHtml(document.getElementById('nightly-rate').value || '0'),
+        occupancyRate: escapeHtml(document.getElementById('occupancy-rate').value || '0'),
+        monthlyExpenses: escapeHtml(document.getElementById('monthly-expenses').value || '0'),
+        initialInvestment: escapeHtml(document.getElementById('initial-investment').value || '0'),
+        monthlyRevenue: escapeHtml(document.getElementById('monthly-revenue').textContent),
+        annualRevenue: escapeHtml(document.getElementById('annual-revenue').textContent),
+        netMonthly: escapeHtml(document.getElementById('net-monthly').textContent),
+        netAnnual: escapeHtml(document.getElementById('net-annual').textContent),
+        annualROI: escapeHtml(document.getElementById('annual-roi').textContent),
+        paybackPeriod: escapeHtml(document.getElementById('payback-period').textContent)
     };
 
     // Build the PDF-ready HTML document
