@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Revenue & ROI Calculator</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Revenue & ROI Calculator</h1>
+            <p class="subtitle">Calculate your mortgage payments and vacation rental returns</p>
+        </header>
+
+        <div class="calculator-grid">
+            <!-- Mortgage Calculator Panel -->
+            <div class="calculator-panel" id="mortgage-panel">
+                <h2>Mortgage Calculator</h2>
+                <div class="form-group">
+                    <label for="loan-amount">Loan Amount ($):</label>
+                    <input type="number" id="loan-amount" placeholder="300000" min="0" step="1000">
+                </div>
+                <div class="form-group">
+                    <label for="interest-rate">Annual Interest Rate (%):</label>
+                    <input type="number" id="interest-rate" placeholder="4.5" min="0" max="100" step="0.1">
+                </div>
+                <div class="form-group">
+                    <label for="loan-term">Loan Term (years):</label>
+                    <input type="number" id="loan-term" placeholder="30" min="1" max="50" step="1">
+                </div>
+                <div class="form-group">
+                    <label for="down-payment">Down Payment ($):</label>
+                    <input type="number" id="down-payment" placeholder="60000" min="0" step="1000">
+                </div>
+                <button class="calculate-btn" onclick="calculateMortgage()">Calculate Mortgage</button>
+                
+                <div class="results" id="mortgage-results">
+                    <h3>Results:</h3>
+                    <div class="result-item">
+                        <span class="label">Monthly Payment:</span>
+                        <span class="value" id="monthly-payment">$0.00</span>
+                    </div>
+                    <div class="result-item">
+                        <span class="label">Total Payment:</span>
+                        <span class="value" id="total-payment">$0.00</span>
+                    </div>
+                    <div class="result-item">
+                        <span class="label">Total Interest:</span>
+                        <span class="value" id="total-interest">$0.00</span>
+                    </div>
+                    <div class="result-item">
+                        <span class="label">Principal Amount:</span>
+                        <span class="value" id="principal-amount">$0.00</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Vacation Rental ROI Calculator Panel -->
+            <div class="calculator-panel" id="rental-panel">
+                <h2>Short-Term Vacation Rental ROI</h2>
+                <div class="form-group">
+                    <label for="property-price">Property Price ($):</label>
+                    <input type="number" id="property-price" placeholder="400000" min="0" step="1000">
+                </div>
+                <div class="form-group">
+                    <label for="nightly-rate">Average Nightly Rate ($):</label>
+                    <input type="number" id="nightly-rate" placeholder="200" min="0" step="10">
+                </div>
+                <div class="form-group">
+                    <label for="occupancy-rate">Occupancy Rate (%):</label>
+                    <input type="number" id="occupancy-rate" placeholder="70" min="0" max="100" step="1">
+                </div>
+                <div class="form-group">
+                    <label for="monthly-expenses">Monthly Expenses ($):</label>
+                    <input type="number" id="monthly-expenses" placeholder="2000" min="0" step="100">
+                </div>
+                <div class="form-group">
+                    <label for="initial-investment">Initial Investment ($):</label>
+                    <input type="number" id="initial-investment" placeholder="100000" min="0" step="1000">
+                </div>
+                <button class="calculate-btn" onclick="calculateRentalROI()">Calculate ROI</button>
+                
+                <div class="results" id="rental-results">
+                    <h3>Results:</h3>
+                    <div class="result-item">
+                        <span class="label">Monthly Revenue:</span>
+                        <span class="value" id="monthly-revenue">$0.00</span>
+                    </div>
+                    <div class="result-item">
+                        <span class="label">Annual Revenue:</span>
+                        <span class="value" id="annual-revenue">$0.00</span>
+                    </div>
+                    <div class="result-item">
+                        <span class="label">Net Monthly Income:</span>
+                        <span class="value" id="net-monthly">$0.00</span>
+                    </div>
+                    <div class="result-item">
+                        <span class="label">Net Annual Income:</span>
+                        <span class="value" id="net-annual">$0.00</span>
+                    </div>
+                    <div class="result-item highlight">
+                        <span class="label">Annual ROI:</span>
+                        <span class="value" id="annual-roi">0.00%</span>
+                    </div>
+                    <div class="result-item">
+                        <span class="label">Payback Period:</span>
+                        <span class="value" id="payback-period">0 years</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="pdf-section">
+            <button class="pdf-btn" onclick="generatePDF()">
+                📄 Generate PDF Report
+            </button>
+        </div>
+
+        <footer>
+            <p>Revenue & ROI Calculator - All calculations are estimates</p>
+        </footer>
+    </div>
+
+    <script src="calculator.js"></script>
+</body>
+</html>
