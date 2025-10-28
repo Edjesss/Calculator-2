@@ -1,0 +1,35 @@
+name: calculator-ci
+on: [push, pull_request]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: '20' }
+
+      - run: npm init -y
+      - run: npm i -D playwright pixelmatch pngjs
+      - run: npx playwright install --with-deps chromium
+
+      - run: node .github/scripts/print-and-diff.js
+
+      # Fail the build if a visual diff was generated
+      - name: Check visual diff
+        run: |
+          if [ -f diff.png ]; then
+            echo "Visual change detected. If intended, update tests/golden.png in a baseline PR."
+            exit 1
+          fi
+
+      # (Optional but recommended) Upload artifacts for review
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: calculator-ci-artifacts
+          path: |
+            out.pdf
+            out.png
+            diff.png
+            tests/golden.png
